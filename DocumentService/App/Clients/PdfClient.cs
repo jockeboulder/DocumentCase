@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text;
 
+namespace Clients;
 public class PdfClient
 {
     public static async Task<HttpResponseMessage> CreateAsync(Guid documentNumber, string customerNumber, string documentText)
