@@ -11,6 +11,11 @@ public class DocumentController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(Guid documentNumber, string customerNumber, string documentText)
     {
-        return Ok();
+        var result = await PdfClient.CreateAsync(documentNumber, customerNumber, documentText);
+        if (result.IsSuccessStatusCode)
+        {
+            return Ok(result.Content);
+        }
+        return NotFound();
     }
 }
