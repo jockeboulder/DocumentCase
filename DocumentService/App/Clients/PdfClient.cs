@@ -12,7 +12,7 @@ public class PdfClient
         var data = new StringContent(json, Encoding.UTF8, "application/json");
         
         using var client = new HttpClient();
-        var result = await client.PostAsync($"http://host.docker.internal:5002/Pdf?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
+        var result = await client.PostAsync($"http://localhost:5056/Pdf?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
         return result;
     }
 }
