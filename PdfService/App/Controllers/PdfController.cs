@@ -44,8 +44,9 @@ public class PdfController : ControllerBase
             },
             }
         };
-        byte[] pdf = converter.Convert(doc);
+        byte[] pdf = converter.Convert(doc); // should work but macOS doesn't support this package atm...
 
+        // Preferably we would use something like Azure Client to send this to an Azure Storage Account
         var result = await StorageClient.StoreAsync(pdf, documentNumber.ToString(), "pdf");
         if (result.IsSuccessStatusCode)
         {

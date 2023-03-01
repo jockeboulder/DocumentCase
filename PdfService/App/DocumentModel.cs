@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 namespace PdfService;
+// Ideally this would be a shared model to use when calling APIs
 public class DocumentModel
 {
     public Guid DocumentNumber { get; set; }

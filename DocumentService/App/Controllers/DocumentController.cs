@@ -9,6 +9,7 @@ namespace DotNet.Docker.Controllers;
 [Route("[controller]")]
 public class DocumentController : ControllerBase
 {
+    // TODO: Could add caching to this request if we're making similar requests
     [HttpGet]
     public async Task<IActionResult> Get(Guid documentNumber, string customerNumber, string documentText)
     {
