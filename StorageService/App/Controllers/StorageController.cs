@@ -10,11 +10,12 @@ public class StorageController : ControllerBase
     private const string filePath = ".";
 
     [HttpPost]
-    public async Task<IActionResult> Store([FromQuery] string fileName, [FromQuery] string extension, [FromBody] byte[] file)
+    public async Task<IActionResult> Store([FromQuery] string fileName, [FromQuery] string extension, [FromBody] string file)
     {
+        byte[] pdf = Convert.FromBase64String(file);
         // TODO: Store document on Azure Storage Account? Maybe on disk for now...
         using FileStream stream = System.IO.File.Create($"{filePath}/{fileName}.{extension}");
-        stream.Write(file, 0, file.Length);
+        stream.Write(pdf, 0, file.Length);
         return Ok();
     }
 }

@@ -10,7 +10,7 @@ namespace PdfService.Docker.Controllers;
 public class PdfController : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Create(Guid documentNumber, string customerNumber, string documentText)
+    public async Task<IActionResult> Create([FromQuery]Guid documentNumber, [FromQuery]string customerNumber, [FromBody]string documentText)
     {
         DocumentModel document = new()
         {
@@ -44,10 +44,9 @@ public class PdfController : ControllerBase
             },
             }
         };
-
         byte[] pdf = converter.Convert(doc);
 
-        var result = await StorageClient.StoreAsync(pdf, documentNumber.ToString(), ".pdf");
+        var result = await StorageClient.StoreAsync(pdf, documentNumber.ToString(), "pdf");
         if (result.IsSuccessStatusCode)
         {
             return Ok(result.Content);
