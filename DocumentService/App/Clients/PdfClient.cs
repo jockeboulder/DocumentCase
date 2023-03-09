@@ -16,4 +16,9 @@ public class PdfClient
         var result = await client.PostAsync($"http://localhost:5056/Pdf?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
         return result;
     }
+
+    public static Task<HttpResponseMessage> GetAsync(Guid documentNumber, string customerNumber)
+    {
+        throw new NotImplementedException();
+    }
 }
