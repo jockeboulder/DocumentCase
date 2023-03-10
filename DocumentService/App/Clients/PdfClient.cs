@@ -4,21 +4,27 @@ using System.Threading.Tasks;
 using System.Text;
 
 namespace Clients;
-public class PdfClient
+public class PdfClient : IPdfClient
 {
-    public static async Task<HttpResponseMessage> CreateAsync(Guid documentNumber, string customerNumber, string documentText)
+    private readonly HttpClient _httpClient;
+
+    public PdfClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("http://localhost:5056/Pdf");
+    }
+    public async Task<HttpResponseMessage> CreateAsync(Guid documentNumber, string customerNumber, string documentText)
     {
         var json = System.Text.Json.JsonSerializer.Serialize(documentText);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
         
-        // TODO: Use DI for this instead to not create a new client per call...
-        using var client = new HttpClient();
-        var result = await client.PostAsync($"http://localhost:5056/Pdf?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
+        var result = await _httpClient.PostAsync($"/Create?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
         return result;
     }
 
-    public static Task<HttpResponseMessage> GetAsync(Guid documentNumber, string customerNumber)
+    public async Task<HttpResponseMessage> GetAsync(Guid documentNumber, string customerNumber)
     {
-        throw new NotImplementedException();
+        var result = await _httpClient.GetAsync($"/Get?documentNumber={documentNumber}&customerNumber={customerNumber}");
+        return result;
     }
 }
