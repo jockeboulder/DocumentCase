@@ -9,6 +9,7 @@ namespace PdfService.Docker.Controllers;
 [Route("[controller]")]
 public class PdfController : ControllerBase
 {
+    [Route("Create")]
     [HttpPost]
     public async Task<IActionResult> Create([FromQuery]Guid documentNumber, [FromQuery]string customerNumber, [FromBody]string documentText)
     {
@@ -54,5 +55,12 @@ public class PdfController : ControllerBase
         }
 
         return NotFound();
+    }
+
+    [Route("Get")]
+    [HttpGet]
+    public async Task<HttpResponseMessage> GetAsync([FromQuery]Guid documentNumber, [FromQuery]string customerNumber)
+    {
+        return await StorageClient.GetFromAzureAsync(documentNumber, customerNumber);
     }
 }

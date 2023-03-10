@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using Azure;
 using Azure.Storage.Blobs;
@@ -12,6 +13,28 @@ public class StorageClient
     {
         _blobCredentials = blobCredentials.Value;
         ConfigurationHelper<BlobCredentials>.Initialize(blobCredentials);
+    }
+
+    public static async Task<HttpResponseMessage> GetFromAzureAsync(Guid documentNumber, string customerNumber)
+    {
+        byte[] content;
+        BlobClient blobClient = new(ConfigurationHelper<BlobCredentials>._options.Value.ConnectionString, ConfigurationHelper<BlobCredentials>._options.Value.ContainerName, documentNumber.ToString());
+        try
+        {
+            MemoryStream stream = new MemoryStream();
+            await blobClient.DownloadToAsync(stream);
+            content = stream.ToArray();
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            // Let the user know that the directory does not exist
+            Console.WriteLine($"Directory not found: {ex.Message}");
+            return new HttpResponseMessage( HttpStatusCode.NotFound );
+        }
+        HttpResponseMessage response = new (HttpStatusCode.OK);
+        response.Content = new ByteArrayContent(content);
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        return response;
     }
 
     public static async Task<HttpResponseMessage> StoreToDiskAsync(byte[] file, string name, string extension)
