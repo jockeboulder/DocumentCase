@@ -9,6 +9,7 @@ public class StorageController : ControllerBase
 {
     private const string filePath = ".";
 
+    [Route("Store")]
     [HttpPost]
     public async Task<IActionResult> Store([FromQuery] string fileName, [FromQuery] string extension, [FromBody] string file)
     {

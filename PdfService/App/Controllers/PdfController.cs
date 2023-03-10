@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using WkHtmlToPdfDotNet;
 
 namespace PdfService.Docker.Controllers;
@@ -9,6 +10,15 @@ namespace PdfService.Docker.Controllers;
 [Route("[controller]")]
 public class PdfController : ControllerBase
 {
+    private readonly HttpClient _httpClient;
+    private readonly StorageClient _storageClient;
+
+    public PdfController(IOptions<BlobCredentials> blobCredentials, HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+        _storageClient = new StorageClient(blobCredentials, _httpClient);
+    }
+    
     [Route("Create")]
     [HttpPost]
     public async Task<IActionResult> Create([FromQuery]Guid documentNumber, [FromQuery]string customerNumber, [FromBody]string documentText)
@@ -48,7 +58,7 @@ public class PdfController : ControllerBase
         byte[] pdf = converter.Convert(doc); // should work but macOS doesn't support this package atm...
 
         // Preferably we would use something like Azure Client to send this to an Azure Storage Account
-        var result = await StorageClient.StoreToAzureAsync(pdf, documentNumber.ToString(), "pdf");
+        var result = await _storageClient.StoreToAzureAsync(pdf, documentNumber.ToString(), "pdf");
         if (result.IsSuccessStatusCode)
         {
             return Ok(result.Content);
@@ -61,6 +71,6 @@ public class PdfController : ControllerBase
     [HttpGet]
     public async Task<HttpResponseMessage> GetAsync([FromQuery]Guid documentNumber, [FromQuery]string customerNumber)
     {
-        return await StorageClient.GetFromAzureAsync(documentNumber, customerNumber);
+        return await _storageClient.GetFromAzureAsync(documentNumber, customerNumber);
     }
 }

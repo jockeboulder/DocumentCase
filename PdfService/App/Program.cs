@@ -4,12 +4,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.Configure<BlobCredentials>(
+    builder.Configuration.GetSection(nameof(BlobCredentials)));
+
 builder.Services.AddControllers();
+builder.Services.AddHttpClient<StorageClient>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.Configure<BlobCredentials>(
-    builder.Configuration.GetSection(nameof(BlobCredentials)));
 
 var app = builder.Build();
 

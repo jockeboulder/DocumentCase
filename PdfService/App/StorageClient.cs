@@ -8,22 +8,29 @@ using Microsoft.Extensions.Options;
 public class StorageClient
 {
     private readonly BlobCredentials _blobCredentials;
-
-    public StorageClient(IOptions<BlobCredentials> blobCredentials)
+    private readonly HttpClient _httpClient;
+    public StorageClient(IOptions<BlobCredentials> blobCredentials, HttpClient httpClient)
     {
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("http://localhost:5146/Storage/");
         _blobCredentials = blobCredentials.Value;
-        ConfigurationHelper<BlobCredentials>.Initialize(blobCredentials);
     }
 
-    public static async Task<HttpResponseMessage> GetFromAzureAsync(Guid documentNumber, string customerNumber)
+    public async Task<HttpResponseMessage> GetFromAzureAsync(Guid documentNumber, string customerNumber)
     {
         byte[] content;
-        BlobClient blobClient = new(ConfigurationHelper<BlobCredentials>._options.Value.ConnectionString, ConfigurationHelper<BlobCredentials>._options.Value.ContainerName, documentNumber.ToString());
+        BlobClient blobClient = new(_blobCredentials.ConnectionString, _blobCredentials.ContainerName, documentNumber.ToString());
         try
         {
             MemoryStream stream = new MemoryStream();
             await blobClient.DownloadToAsync(stream);
             content = stream.ToArray();
+        }
+        catch (RequestFailedException ex)
+        {
+            // Let the user know that the directory does not exist
+            Console.WriteLine($"Blob not found: {ex.Message}");
+            return new HttpResponseMessage( HttpStatusCode.NotFound );
         }
         catch (DirectoryNotFoundException ex)
         {
@@ -37,20 +44,20 @@ public class StorageClient
         return response;
     }
 
-    public static async Task<HttpResponseMessage> StoreToDiskAsync(byte[] file, string name, string extension)
+    public async Task<HttpResponseMessage> StoreToDiskAsync(byte[] file, string name, string extension)
     {
         using var client = new HttpClient();
         var json = Convert.ToBase64String(file);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
-        var result = await client.PostAsync($"http://localhost:5146/Storage?fileName={name}&extension={extension}", data);
+        var result = await client.PostAsync($"Store?fileName={name}&extension={extension}", data);
         return result;
     }
 
-    public static async Task<HttpResponseMessage> StoreToAzureAsync(byte[] file, string name, string extension)
+    public async Task<HttpResponseMessage> StoreToAzureAsync(byte[] file, string name, string extension)
     {
         HttpResponseMessage response = new();
         // TODO: Maybe inject client instead of creating new instance on every call?
-        BlobContainerClient containerClient = new(ConfigurationHelper<BlobCredentials>._options.Value.ConnectionString, ConfigurationHelper<BlobCredentials>._options.Value.ContainerName);
+        BlobContainerClient containerClient = new(_blobCredentials.ConnectionString, _blobCredentials.ContainerName);
         try
         {
             // Get a reference to the blob just uploaded from the API in a container from configuration settings
