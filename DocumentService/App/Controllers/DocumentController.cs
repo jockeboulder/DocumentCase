@@ -19,7 +19,7 @@ public class DocumentController : ControllerBase
     // TODO: Could add caching to this request if we're making similar requests
     [Route("Get")]
     [HttpGet]
-    public async Task<IActionResult> Get(Guid documentNumber, string customerNumber)
+    public async Task<IActionResult> Get([FromQuery]Guid documentNumber, [FromQuery]string customerNumber)
     {
         var result = await _pdfClient.GetAsync(documentNumber, customerNumber);
         if (result.IsSuccessStatusCode)
@@ -31,7 +31,7 @@ public class DocumentController : ControllerBase
 
     [Route("Create")]
     [HttpPost]
-    public async Task<IActionResult> Create(Guid documentNumber, string customerNumber, string documentText)
+    public async Task<IActionResult> Create([FromQuery]Guid documentNumber, [FromQuery]string customerNumber, [FromBody]string documentText)
     {
         // TODO: Should call Storage instead...
         var result = await _pdfClient.CreateAsync(documentNumber, customerNumber, documentText);

@@ -11,20 +11,20 @@ public class PdfClient : IPdfClient
     public PdfClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5056/Pdf");
+        _httpClient.BaseAddress = new Uri("http://localhost:5002/Pdf/");
     }
     public async Task<HttpResponseMessage> CreateAsync(Guid documentNumber, string customerNumber, string documentText)
     {
         var json = System.Text.Json.JsonSerializer.Serialize(documentText);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
         
-        var result = await _httpClient.PostAsync($"/Create?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
+        var result = await _httpClient.PostAsync($"Create?documentNumber={documentNumber}&customerNumber={customerNumber}", data);
         return result;
     }
 
     public async Task<HttpResponseMessage> GetAsync(Guid documentNumber, string customerNumber)
     {
-        var result = await _httpClient.GetAsync($"/Get?documentNumber={documentNumber}&customerNumber={customerNumber}");
+        var result = await _httpClient.GetAsync($"Get?documentNumber={documentNumber}&customerNumber={customerNumber}");
         return result;
     }
 }
