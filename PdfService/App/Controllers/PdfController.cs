@@ -64,7 +64,7 @@ public class PdfController : ControllerBase
             return Ok(result.Content);
         }
 
-        return NotFound();
+        return BadRequest();
     }
 
     [Route("Get")]

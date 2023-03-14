@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
 
 public class StorageClient
@@ -12,7 +13,7 @@ public class StorageClient
     public StorageClient(IOptions<BlobCredentials> blobCredentials, HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5146/Storage/");
+        _httpClient.BaseAddress = new Uri("http://storageservice/Storage/");
         _blobCredentials = blobCredentials.Value;
     }
 
@@ -67,7 +68,7 @@ public class StorageClient
             stream.Write(file, 0, file.Length);
 
             // Upload the file async
-            var res = await client.UploadAsync(stream);
+            Response<BlobContentInfo> res = await client.UploadAsync(stream);
 
             // Everything is OK and file got uploaded
             Console.WriteLine($"File {name} Uploaded Successfully");
@@ -79,6 +80,7 @@ public class StorageClient
         {
             // TODO: use SeriLog
             // Log.Error($"File with name {name} already exists in container. Set another name to store the file in the container: '{ConfigurationHelper<BlobCredentials>._options.Value.ContainerName}.'");
+            throw new RequestFailedException("Blob already exists");
             return new HttpResponseMessage(HttpStatusCode.Conflict);
         } 
         // If we get an unexpected error, we catch it here and return the error message
@@ -86,6 +88,7 @@ public class StorageClient
         {
             // TODO: use SeriLog
             // Log.Error($"Unhandled Exception. ID: {ex.StackTrace} - Message: {ex.Message}");
+            throw new RequestFailedException($"Unhandled Exception. ID: {ex.StackTrace} - Message: {ex.Message}");
             return new HttpResponseMessage(HttpStatusCode.InternalServerError);
         }
 
