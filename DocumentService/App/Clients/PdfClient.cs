@@ -11,7 +11,7 @@ public class PdfClient : IPdfClient
     public PdfClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5002/Pdf/");
+        _httpClient.BaseAddress = new Uri("http://172.19.0.2/Pdf/");
     }
     public async Task<HttpResponseMessage> CreateAsync(Guid documentNumber, string customerNumber, string documentText)
     {

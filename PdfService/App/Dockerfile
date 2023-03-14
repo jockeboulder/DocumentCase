@@ -1,5 +1,4 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
-RUN apt-get update -qq && apt-get -y install libgdiplus libc6-dev libjpeg62
 WORKDIR /App
 
 # Copy everything
@@ -13,5 +12,5 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /App
 COPY --from=build-env /App/out .
-
+RUN apt-get update -qq && apt-get -y install libgdiplus libc6-dev libjpeg62
 ENTRYPOINT ["dotnet", "PdfService.Docker.dll"]

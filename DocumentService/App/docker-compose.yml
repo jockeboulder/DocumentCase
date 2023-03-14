@@ -7,7 +7,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 5001:5001
+      - 5011:80
+    expose:
+      - "5001"
+      - "5000"
+    networks:
+      - backend
     restart: always
   pdfservice:
     container_name: pdfservice
@@ -15,7 +20,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 5002:5002
+      - 5012:80
+    expose:
+      - "5002"
+      - "5000"
+    networks:
+      - backend
     restart: always
   storageservice:
     container_name: storageservice
@@ -23,5 +33,18 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 5003:5003
+      - 5013:80
+    expose:
+      - "5003"
+      - "5000"
+    networks:
+      - backend
     restart: always
+    
+networks:
+  backend:
+    external: true
+    ipam:
+      driver: bridge
+      config:
+      - subnet: 172.19.0.0/16
